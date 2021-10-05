@@ -48,7 +48,7 @@ namespace TretiaHodina
                  }*/
 
                 //4,
-                if(TryParseInt2(my_num, (ParseIntOption.ALLOW_WHITESPACES | ParseIntOption.IGNORE_INVALID_CHARS),out int value))
+                if(TryParseInt2(my_num, (ParseIntOption.ALLOW_WHITESPACES | ParseIntOption.ALLOW_NEGATIVE_NUMBERS | ParseIntOption.IGNORE_INVALID_CHARS),out int value))
                 {
                     Console.WriteLine(value);
                 }
@@ -64,28 +64,74 @@ namespace TretiaHodina
 
         public static bool TryParseInt2(string my_num, ParseIntOption options, out int value)
         {
-
+            Console.WriteLine("My options:");
+            Console.WriteLine(options+"\n\n");
+            /*Console.WriteLine(options & ParseIntOption.NONE);
+            Console.WriteLine(options & ParseIntOption.ALLOW_WHITESPACES);
+            Console.WriteLine(options & ParseIntOption.ALLOW_NEGATIVE_NUMBERS);
+            Console.WriteLine(options & ParseIntOption.IGNORE_INVALID_CHARS);
+            Console.WriteLine("");
+            Console.WriteLine(ParseIntOption.NONE);
+            Console.WriteLine(ParseIntOption.ALLOW_WHITESPACES);
+            Console.WriteLine(ParseIntOption.ALLOW_NEGATIVE_NUMBERS);*/
+            if(options == ParseIntOption.NONE)
+            {
+                Console.WriteLine("NONE mam");
+            }
             if((options & ParseIntOption.ALLOW_WHITESPACES) == ParseIntOption.ALLOW_WHITESPACES)
             {
                 Console.WriteLine("whitespaces mam");
             }
+            if ((options & ParseIntOption.ALLOW_NEGATIVE_NUMBERS) == ParseIntOption.ALLOW_NEGATIVE_NUMBERS)
+            {
+                Console.WriteLine("ALLOW_NEGATIVE_NUMBERS mam");
+            }
+
+            bool invalid_chars = false;
+            if ((options & ParseIntOption.IGNORE_INVALID_CHARS) == ParseIntOption.IGNORE_INVALID_CHARS)
+            {
+                invalid_chars = true;
+            }
+            
+            
 
             value = 0;
 
             if (my_num == null) { return false; }
 
+            bool is_negative = false;
+
             int tmp = 0;
             for (int i = 0; i < my_num.Length; i++)
             {
-                tmp *= 10;
+                if ((char)my_num[i] == 32 && ((options & ParseIntOption.ALLOW_WHITESPACES) == ParseIntOption.ALLOW_WHITESPACES))
+                {
+                    continue;
+                }
+                if ((char)my_num[i] == 45 && ((options & ParseIntOption.ALLOW_NEGATIVE_NUMBERS) == ParseIntOption.ALLOW_NEGATIVE_NUMBERS))
+                {
+                    is_negative = true;
+                    continue;
+                }
+                
                 char c = my_num[i];
                 int cNum = (int)c;
                 cNum = cNum - 48;
-                if (cNum < 0) { return false; }
-                if (cNum > 9) { return false; }
+                if (cNum < 0 || cNum > 9) {
+                    if (invalid_chars)
+                    {
+                        continue;
+                    }
+                    return false; 
+                }
+                tmp *= 10;
                 tmp += cNum;
             }
 
+            if (is_negative)
+            {
+                tmp *= -1;
+            }
             value = tmp;
             return true;
         }
